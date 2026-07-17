@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Happy Birthday — Jeeva Sree</title>
+
+  <!-- Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg1:#fff5f9; --bg2:#fff0f6;
+      --accent-a:#ff6b9f; --accent-b:#ff9fc4;
+      --text:#1b1f2a; --muted:rgba(27,31,42,0.56);
+      --card-border: rgba(255,153,190,0.12);
+      --glass: rgba(255,255,255,0.9);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;font-family:'Poppins',system-ui,-apple-system,Segoe UI,Roboto,Arial;color:var(--text)}
+    body{
+      background:
+        radial-gradient(900px 380px at 6% 12%, rgba(255,107,159,0.06), transparent 10%),
+        radial-gradient(700px 300px at 94% 88%, rgba(255,159,192,0.035), transparent 10%),
+        linear-gradient(180deg,var(--bg1),var(--bg2));
+      display:flex;align-items:center;justify-content:center;padding:28px;
+      -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+    }
+
+    .stage{width:100%;max-width:980px;margin:auto}
+    .card{
+      position:relative; overflow:hidden; border-radius:20px; padding:26px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(255,249,251,0.99));
+      border:1px solid var(--card-border); box-shadow: 0 20px 60px rgba(20,24,40,0.08);
+    }
+
+    /* Confetti canvas */
+    canvas#confetti { position:absolute; left:0; top:0; width:100%; height:100%; pointer-events:none; }
+
+    .head { display:flex; gap:18px; align-items:center; }
+    .avatar {
+      width:118px; height:118px; border-radius:16px; overflow:hidden; flex:0 0 auto;
+      border: 2px solid rgba(255,255,255,0.9); background:linear-gradient(135deg,var(--accent-a),var(--accent-b));
+      display:flex; align-items:center; justify-content:center;
+    }
+    .avatar img{ width:100%; height:100%; object-fit:cover; display:block; }
+
+    .title { flex:1; }
+    h1{ margin:0; font-size:1.8rem; font-weight:800;
+         background: linear-gradient(90deg,var(--accent-a),var(--accent-b)); -webkit-background-clip:text; color:transparent; }
+    .subtitle { margin-top:8px; color:var(--muted); font-weight:600 }
+
+    .from { text-align:right; min-width:110px; }
+    .from .who { font-weight:800; font-size:1rem }
+
+    .main { display:flex; gap:22px; margin-top:20px; align-items:flex-start; flex-wrap:wrap; }
+    .left { max-width:64%; min-width:260px; }
+    .message {
+      border-radius:14px; padding:20px; font-size:1.02rem; line-height:1.5;
+      background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(255,250,252,0.98));
+      border:1px solid rgba(255,107,159,0.04);
+      color:var(--text);
+    }
+
+    .controls { display:flex; gap:12px; margin-top:14px; flex-wrap:wrap }
+    .btn { padding:10px 16px; border-radius:12px; font-weight:700; border:none; cursor:pointer; display:inline-flex; align-items:center; gap:8px; }
+    .primary { background: linear-gradient(90deg,var(--accent-a),var(--accent-b)); color:#fff; box-shadow: 0 10px 30px rgba(255,107,159,0.14); }
+    .ghost { background:transparent; color:var(--accent-a); border:1px solid rgba(255,107,159,0.12); }
+
+    .right { min-width:260px; display:flex; flex-direction:column; align-items:center; gap:14px; text-align:center; }
+
+    .hero-image {
+      width:260px; height:260px; border-radius:16px; overflow:hidden; display:block;
+      box-shadow: 0 18px 40px rgba(20,24,40,0.08); border:1px solid rgba(255,255,255,0.6);
+      background:#fff; object-fit:cover;
+    }
+    .hero-image img{ width:100%; height:100%; object-fit:cover; display:block; }
+
+    /* Panda reveal */
+    .panda-wrap { display:none; margin-top:14px; text-align:center; }
+    .panda { width:180px; height:180px; margin:auto; display:flex;align-items:center;justify-content:center; }
+    .panda svg{ width:160px; height:160px; display:block; }
+
+    /* gift */
+    .gift { width:120px; height:120px; border-radius:12px; background:linear-gradient(180deg,#fff0f6,#fff7fb); display:flex;align-items:center;justify-content:center; cursor:pointer; border:1px solid rgba(255,107,159,0.06); box-shadow:0 10px 28px rgba(0,0,0,0.06); }
+    .gift .box { font-size:44px; transform:translateY(0); transition: transform .22s ease; }
+    .gift.open .box { transform: translateY(-12px) rotate(-8deg); }
+
+    .final-msg { display:none; margin-top:16px; font-size:1.05rem; font-weight:600; color:var(--text); text-align:center; }
+    .hearts { margin-top:10px; display:flex; gap:8px; justify-content:center; }
+
+    .share-row { display:flex; gap:10px; margin-top:12px; justify-content:flex-start; flex-wrap:wrap; }
+
+    .save-btn { margin-left:6px; }
+
+    .note { margin-top:18px; color:var(--muted); font-size:0.92rem; text-align:center }
+
+    @media (max-width:820px){
+      .main{ flex-direction:column; }
+      .hero-image{ width:100%; height:320px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="stage" aria-live="polite">
+    <div class="card" role="main" aria-labelledby="greeting">
+      <canvas id="confetti" aria-hidden="true"></canvas>
+
+      <div class="head">
+        <div class="avatar" aria-hidden="true">
+          <!-- Teddy image from your repo (ensure ./assets/birthday_bear.jpg exists) -->
+          <img id="avatarImg" src="./assets/birthday_bear.jpg" alt="Birthday teddy">
+        </div>
+
+        <div class="title">
+          <h1 id="greeting">Happy Birthday, Jeeva Sree</h1>
+          <div class="subtitle">Best friends forever — this day is all yours</div>
+        </div>
+
+        <div class="from" aria-hidden="true">
+          <div style="font-size:0.86rem;color:var(--muted)">From</div>
+          <div class="who" id="fromName">King</div>
+        </div>
+      </div>
+
+      <div class="main">
+        <div class="left">
+          <div class="message" id="messageBox">
+            Click "Open Surprise" to begin the celebration — little moments, big smiles. (The final message will appear after the gift is opened.)
+          </div>
+
+          <div class="controls" aria-hidden="false">
+            <button class="btn primary" id="openBtn" aria-haspopup="true">Open Surprise</button>
+            <button class="btn ghost" id="playSongBtn" style="display:none">Play Song</button>
+            <button class="btn ghost" id="toggleSave">Save as Image</button>
+          </div>
+
+          <!-- panda reveal -->
+          <div class="panda-wrap" id="pandaWrap" aria-hidden="true">
+            <div class="panda" id="panda">
+              <!-- simple cute panda inline SVG -->
+              <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <defs>
+                  <radialGradient id="g1" cx="50%" cy="30%">
+                    <stop offset="0%" stop-color="#fff"/>
+                    <stop offset="100%" stop-color="#f7f7f7"/>
+                  </radialGradient>
+                </defs>
+                <rect width="200" height="200" rx="20" fill="url(#g1)"/>
+                <!-- ears -->
+                <circle cx="60" cy="50" r="22" fill="#2b2b2b"/>
+                <circle cx="140" cy="50" r="22" fill="#2b2b2b"/>
+                <!-- face -->
+                <ellipse cx="100" cy="110" rx="62" ry="56" fill="#fff"/>
+                <!-- eyes patches -->
+                <ellipse cx="75" cy="100" rx="20" ry="26" fill="#2b2b2b"/>
+                <ellipse cx="125" cy="100" rx="20" ry="26" fill="#2b2b2b"/>
+                <!-- eyes -->
+                <circle cx="75" cy="100" r="6" fill="#fff"/>
+                <circle cx="125" cy="100" r="6" fill="#fff"/>
+                <!-- nose & mouth -->
+                <path d="M95 120 q5 8 10 0" stroke="#2b2b2b" stroke-width="3" fill="none" stroke-linecap="round"/>
+                <circle cx="100" cy="110" r="6" fill="#2b2b2b"/>
+              </svg>
+            </div>
+            <div style="margin-top:8px;font-weight:700;color:var(--accent-a)">A cute panda says hello!</div>
+          </div>
+
+          <!-- final message -->
+          <div class="final-msg" id="finalMsg" aria-hidden="true">
+            <!-- filled by JS -->
+          </div>
+
+          <div class="hearts" id="hearts" aria-hidden="true" style="display:none">
+            <div style="color:#ff6b9f;font-size:22px">❤</div>
+            <div style="color:#ff9fc4;font-size:22px">💖</div>
+            <div style="color:#ff6b9f;font-size:22px">✨</div>
+          </div>
+
+          <div class="share-row" aria-hidden="false">
+            <button class="btn ghost save-btn" id="saveBtn">Download Card</button>
+            <button class="btn ghost" id="shareBtn" style="display:none">Share</button>
+          </div>
+
+        </div>
+
+        <div class="right">
+          <div class="hero-image" aria-hidden="true">
+            <img id="heroImg" src="./assets/birthday_bear.jpg" alt="Birthday teddy hero">
+          </div>
+
+          <!-- gift box -->
+          <div class="gift" id="giftBox" role="button" tabindex="0" aria-pressed="false" title="Click to open gift">
+            <div class="box" id="giftBoxInner">🎁</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="note" id="noteLine">Tip: After you open surprise, press "Play Song" then click the gift to reveal the final message.</div>
+    </div>
+  </div>
+
+  <!-- confetti lib -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+
+  <script>
+    /************************* CONFIG *************************/
+    const PERSON = "Jeeva Sree";
+    const SENDER = "King";
+    const TEDDY_IMG_PATH = "./assets/birthday_bear.jpg"; // ensure this file is in repo
+    // YouTube video ids for songs (opens in embed after user clicks Play)
+    const SONG_VIDEO_ID = "ZbZSe6N_BXs"; // Pharrell - Happy (example). Replace if you want another.
+    const FINAL_MESSAGE = `My dearest best friend ${PERSON}, happiest birthday! You light up every room with your smile and make every moment special. Thank you for being you — my partner in laughter, madness, and memories. Love you forever — ${SENDER}.`;
+    /*********************************************************/
+
+    // DOM refs
+    const confettiCanvas = document.getElementById('confetti');
+    const avatarImg = document.getElementById('avatarImg');
+    const heroImg = document.getElementById('heroImg');
+    const openBtn = document.getElementById('openBtn');
+    const playSongBtn = document.getElementById('playSongBtn');
+    const pandaWrap = document.getElementById('pandaWrap');
+    const finalMsg = document.getElementById('finalMsg');
+    const giftBox = document.getElementById('giftBox');
+    const giftInner = document.getElementById('giftBoxInner');
+    const saveBtn = document.getElementById('saveBtn');
+    const shareBtn = document.getElementById('shareBtn');
+    const hearts = document.getElementById('hearts');
+    const noteLine = document.getElementById('noteLine');
+
+    // apply images & text
+    avatarImg.src = TEDDY_IMG_PATH;
+    heroImg.src = TEDDY_IMG_PATH;
+    document.getElementById('fromName').textContent = SENDER;
+    document.getElementById('greeting').textContent = `Happy Birthday, ${PERSON}`;
+    document.getElementById('messageBox').textContent = `Click "Open Surprise" to begin the celebration — little moments, big smiles. (The final message will appear after the gift is opened.)`;
+
+    // confetti helper
+    const conf = confetti.create(confettiCanvas, { resize: true, useWorker: true });
+    function confettiBurst() {
+      conf({ particleCount: 160, spread: 170, origin: { y: 0.35 }});
+      conf({ particleCount: 100, spread: 110, origin: { x: 0.2, y: 0.6 }});
+      conf({ particleCount: 100, spread: 110, origin: { x: 0.8, y: 0.6 }});
+    }
+
+    // gentle hint on load
+    window.addEventListener('load', () => {
+      setTimeout(() => conf({ particleCount: 20, spread: 36, origin: { y: 0.2 } }), 700);
+    });
+
+    // 1) Open Surprise -> show panda, show Play Song button, confetti
+    openBtn.addEventListener('click', () => {
+      confettiBurst();
+      pandaWrap.style.display = 'block';
+      pandaWrap.setAttribute('aria-hidden','false');
+      playSongBtn.style.display = 'inline-flex';
+      openBtn.disabled = true;
+      noteLine.textContent = 'Now tap "Play Song" to enjoy music, then click the gift to reveal your message.';
+      // subtle panda bounce animation
+      const panda = document.getElementById('panda');
+      panda.animate([{ transform: 'translateY(12px)' }, { transform: 'translateY(0)' }], { duration: 900, iterations: 1, easing: 'cubic-bezier(.2,.9,.23,1)' });
+    });
+
+    // 2) Play Song -> embed YouTube player in a small popup overlay (user-initiated, so autoplay allowed)
+    playSongBtn.addEventListener('click', () => {
+      // create overlay player
+      const overlay = document.createElement('div');
+      overlay.style.position = 'fixed';
+      overlay.style.inset = '0';
+      overlay.style.background = 'rgba(0,0,0,0.56)';
+      overlay.style.display = 'flex';
+      overlay.style.alignItems = 'center';
+      overlay.style.justifyContent = 'center';
+      overlay.style.zIndex = '9999';
+      overlay.innerHTML = `
+        <div style="width:90%;max-width:820px;background:#fff;border-radius:12px;overflow:hidden;">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:linear-gradient(90deg,var(--accent-a),var(--accent-b));color:#fff">
+            <div style="font-weight:800">Now Playing</div>
+            <button id="closePlayer" style="background:transparent;border:none;color:#fff;font-weight:800;cursor:pointer;padding:6px 10px">Close</button>
+          </div>
+          <div style="background:#000;padding:0">
+            <iframe id="ytframe" width="100%" height="420" src="https://www.youtube.com/embed/${SONG_VIDEO_ID}?rel=0&autoplay=1&playsinline=1" frameborder="0" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(overlay);
+      document.getElementById('closePlayer').addEventListener('click', () => {
+        overlay.remove();
+      });
+      // show gift instruction
+      noteLine.textContent = 'Song is playing! When ready, click the gift to open it.';
+    });
+
+    // 3) Gift click -> open animation then reveal final message + confetti + hearts
+    function revealFinal() {
+      giftBox.classList.add('open');
+      giftBox.setAttribute('aria-pressed','true');
+      // animate gift pop
+      giftBox.animate([{ transform:'scale(1)' }, { transform:'scale(1.06)' }, { transform:'scale(1)'}], { duration:380, easing:'cubic-bezier(.2,.9,.23,1)' });
+      // confetti + hearts
+      confettiBurst();
+      hearts.style.display = 'flex';
+      hearts.setAttribute('aria-hidden','false');
+      // show final message
+      finalMsg.style.display = 'block';
+      finalMsg.setAttribute('aria-hidden','false');
+      finalMsg.textContent = FINAL_MESSAGE;
+      // show share button if available
+      if (navigator.share) shareBtn.style.display = 'inline-flex';
+      // smooth scroll to message on small screens
+      finalMsg.scrollIntoView({ behavior:'smooth', block:'center' });
+    }
+
+    giftBox.addEventListener('click', () => {
+      if (!finalMsg.style.display || finalMsg.style.display === 'none') revealFinal();
+    });
+    giftBox.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') giftBox.click(); });
+
+    // save card as image (SVG snapshot method)
+    saveBtn.addEventListener('click', async () => {
+      try {
+        saveBtn.textContent = 'Preparing...';
+        const card = document.querySelector('.card').cloneNode(true);
+        // remove iframe overlays if any
+        card.querySelectorAll('iframe').forEach(n => n.remove());
+        const wrapper = document.createElement('div');
+        wrapper.appendChild(card);
+        const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='1200' height='630'><foreignObject width='100%' height='100%'>${new XMLSerializer().serializeToString(wrapper)}</foreignObject></svg>`;
+        const blob = new Blob([svg], { type: 'image/svg+xml;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas'); canvas.width = 1200; canvas.height = 630;
+          const ctx = canvas.getContext('2d');
+          ctx.fillStyle = '#fff'; ctx.fillRect(0,0,canvas.width,canvas.height);
+          ctx.drawImage(img,0,0,canvas.width,canvas.height);
+          URL.revokeObjectURL(url);
+          canvas.toBlob(b => {
+            const a = document.createElement('a');
+            a.download = `birthday-card-${PERSON.replace(/\s+/g,'-').toLowerCase()}.png`;
+            a.href = URL.createObjectURL(b);
+            document.body.appendChild(a);
+            a.click(); a.remove();
+            saveBtn.textContent = 'Download Card';
+          }, 'image/png');
+        };
+        img.crossOrigin = 'anonymous';
+        img.src = url;
+      } catch (e) {
+        saveBtn.textContent = 'Download Card';
+        alert('Saving failed in this browser — try desktop or take a screenshot.');
+      }
+    });
+
+    // share using Web Share API if available
+    shareBtn.addEventListener('click', async () => {
+      if (navigator.share) {
+        try {
+          await navigator.share({ title:`Happy Birthday ${PERSON}`, text: FINAL_MESSAGE, url: location.href });
+        } catch (e) {
+          // user cancelled or failed
+        }
+      }
+    });
+
+    // accessibility: Enter key opens surprise
+    openBtn.addEventListener('keyup', (e) => { if (e.key === 'Enter' || e.key === ' ') openBtn.click(); });
+    playSongBtn.addEventListener('keyup', (e) => { if (e.key === 'Enter' || e.key === ' ') playSongBtn.click(); });
+
+  </script>
+</body>
+</html>
