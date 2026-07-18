@@ -118,26 +118,53 @@ body.light-theme {
     100% { transform: rotate(360deg); }
 }
 
-.countdown-container {
+/* Teddy Bear Styles */
+.teddy-container {
+    margin: 30px 0;
+    animation: zoomIn 1s ease;
+}
+
+.teddy-bear {
+    position: relative;
+    width: 200px;
+    height: 250px;
+    margin: 0 auto;
+}
+
+.teddy-head {
+    position: absolute;
+    width: 80px;
+    height: 85px;
+    background: #F5F5F5;
+    border-radius: 50%;
+    top: 20px;
+    left: 60px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.teddy-ear {
+    position: absolute;
+    width: 25px;
+    height: 28px;
+    background: #F5F5F5;
+    border-radius: 50%;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+}
+
+.teddy-ear-left {
+    top: 5px;
+    left: 15px;
+}
+
+.teddy-ear-right {
+    top: 5px;
+    right: 15px;
+}
+
+.teddy-face {
+    position: absolute;
     width: 100%;
-    display: flex;
-    justify-content: center;
-}
-
-.countdown-box {
-    display: flex;
-    gap: 20px;
-    flex-wrap: wrap;
-    justify-content: center;
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(15px);
-    padding: 30px;
-    border-radius: 20px;
-    border: 2px solid rgba(255, 255, 255, 0.2);
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-}
-
-.countdown-item {
+    height: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -216,7 +243,6 @@ body.light-theme {
     height: 35px;
     background: linear-gradient(135deg, var(--color-1) 0%, #FF1744 100%);
 }
-
 .cake-2 {
     bottom: 30px;
     height: 40px;
@@ -233,6 +259,139 @@ body.light-theme {
     left: 50%;
     transform: translateX(-50%);
     background: linear-gradient(135deg, var(--color-3) 0%, #FFC107 100%);
+    justify-content: center;
+    gap: 15px;
+}
+
+.teddy-eye {
+    width: 8px;
+    height: 8px;
+    background: #333;
+    border-radius: 50%;
+}
+
+.teddy-eye-left {
+    position: absolute;
+    left: 20px;
+    top: 30px;
+}
+
+.teddy-eye-right {
+    position: absolute;
+    right: 20px;
+    top: 30px;
+}
+
+.teddy-nose {
+    width: 12px;
+    height: 12px;
+    background: #333;
+    border-radius: 50%;
+    position: absolute;
+    top: 50px;
+}
+
+.teddy-body {
+    position: absolute;
+    width: 100px;
+    height: 110px;
+    background: #F5F5F5;
+    border-radius: 40%;
+    top: 95px;
+    left: 50px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.teddy-arm {
+    position: absolute;
+    width: 35px;
+    height: 50px;
+    background: #F5F5F5;
+    border-radius: 25px;
+    top: 110px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+}
+
+.teddy-arm-left {
+    left: 25px;
+    transform: rotate(-30deg);
+}
+
+.teddy-arm-right {
+    right: 25px;
+    transform: rotate(30deg);
+}
+
+.teddy-cake {
+    position: absolute;
+    width: 45px;
+    height: 50px;
+    top: -15px;
+    right: -15px;
+    animation: cakeBounce 2s ease-in-out infinite;
+}
+
+.cake-top {
+    position: absolute;
+    width: 45px;
+    height: 12px;
+    background: linear-gradient(135deg, var(--color-3), #FFD700);
+    border-radius: 5px;
+    top: 0;
+}
+
+.cake-middle {
+    position: absolute;
+    width: 40px;
+    height: 15px;
+    background: linear-gradient(135deg, var(--color-2), #FF6D00);
+    border-radius: 5px;
+    top: 12px;
+    left: 2.5px;
+}
+
+.cake-bottom {
+    position: absolute;
+    width: 35px;
+    height: 15px;
+    background: linear-gradient(135deg, var(--color-1), #FF1744);
+    border-radius: 5px;
+    top: 27px;
+    left: 5px;
+}
+
+.cake-candle {
+    position: absolute;
+    width: 3px;
+    height: 15px;
+    background: #FFD700;
+    border-radius: 2px;
+    left: 21px;
+    top: -8px;
+    box-shadow: 0 0 8px rgba(255, 215, 0, 0.8);
+}
+
+.teddy-leg {
+    position: absolute;
+    width: 30px;
+    height: 45px;
+    background: #F5F5F5;
+    border-radius: 25px;
+    bottom: 10px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+}
+
+.teddy-leg-left {
+    left: 65px;
+}
+
+.teddy-leg-right {
+    right: 65px;
+}
+
+@keyframes cakeBounce {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-8px) rotate(5deg); }
 }
 
 @keyframes zoomIn {
@@ -572,13 +731,9 @@ body.light-theme {
         display: block;
     }
 
-    .countdown-box {
-        padding: 20px;
-        gap: 10px;
-    }
-
-    .countdown-num {
-        font-size: 2rem;
+    .teddy-bear {
+        width: 150px;
+        height: 200px;
     }
 
     .message-box {
@@ -608,7 +763,7 @@ body.light-theme {
         grid-template-columns: repeat(2, 1fr);
     }
 
-    .share-btn {
+.share-btn {
         width: 50px;
         height: 50px;
         font-size: 20px;
@@ -632,26 +787,9 @@ body.light-theme {
         font-size: 1.5rem;
     }
 
-    .countdown-box {
-        padding: 15px;
-        gap: 8px;
-    }
-
-    .countdown-item {
-        min-width: 60px;
-    }
-
-    .countdown-num {
-        font-size: 1.5rem;
-    }
-
-    .countdown-label {
-        font-size: 0.7rem;
-    }
-
-    .cake {
-        width: 100px;
-        height: 90px;
+    .teddy-bear {
+        width: 120px;
+        height: 160px;
     }
 
     .btn {
@@ -667,4 +805,4 @@ body.light-theme {
     .photo-card {
         height: 120px;
     }
-}
+    
