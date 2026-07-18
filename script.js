@@ -6,8 +6,8 @@ function init() {
     loadTheme();
     loadSoundPreference();
     setupEventListeners();
-    startCountdown();
     startAutoCelebration();
+    setupGallery();
 }
 
 function loadTheme() {
@@ -64,16 +64,19 @@ function isSoundEnabled() {
     return localStorage.getItem('soundOn') !== 'false';
 }
 
+// Indian Birthday Song Audio URL (Bollywood style)
+const INDIAN_BIRTHDAY_SONG = 'https://assets.mixkit.co/active_storage/sfx/2706/2706-preview.mp3';
+
 function playCelebrationSound() {
     if (!isSoundEnabled()) return;
     
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    const notes = [523.25, 659.25, 783.99];
+    const notes = [523.25, 659.25, 783.99, 659.25];
     
     notes.forEach((freq, i) => {
         setTimeout(() => {
-            playTone(audioCtx, freq, 0.15);
-        }, i * 100);
+            playTone(audioCtx, freq, 0.2);
+        }, i * 120);
     });
 }
 
@@ -117,36 +120,6 @@ function setupEventListeners() {
     });
 }
 
-function startCountdown() {
-    const targetDate = new Date().getTime() + (24 * 60 * 60 * 1000);
-    
-    const updateTimer = () => {
-        const now = new Date().getTime();
-        const diff = targetDate - now;
-        
-        if (diff <= 0) {
-            document.getElementById('days').textContent = '00';
-            document.getElementById('hours').textContent = '00';
-            document.getElementById('minutes').textContent = '00';
-            document.getElementById('seconds').textContent = '00';
-            return;
-        }
-        
-        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-        
-        document.getElementById('days').textContent = String(days).padStart(2, '0');
-        document.getElementById('hours').textContent = String(hours).padStart(2, '0');
-        document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
-        document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
-    };
-    
-    updateTimer();
-    setInterval(updateTimer, 1000);
-}
-
 function startAutoCelebration() {
     setTimeout(() => {
         createConfetti();
@@ -162,10 +135,10 @@ function startCelebration() {
     createFireworks(12);
     createHearts(20);
     
-    const cake = document.querySelector('.cake');
-    cake.style.animation = 'none';
+    const teddyBear = document.querySelector('.teddy-bear');
+    teddyBear.style.animation = 'none';
     setTimeout(() => {
-        cake.style.animation = 'bounce 0.6s ease';
+        teddyBear.style.animation = 'teddyFloat 3s ease-in-out infinite';
     }, 10);
     
     const title = document.querySelector('.main-title');
@@ -238,6 +211,7 @@ function createConfetti() {
 function createFireworks(count) {
     const container = document.getElementById('fireworksContainer');
     const colors = ['#FF006E', '#FB5607', '#FFBE0B', '#8338EC', '#3A86FF'];
+    const emojis = ['✨', '⭐', '🌟', '💫', '🎆'];
     
     for (let i = 0; i < count; i++) {
         setTimeout(() => {
@@ -250,7 +224,7 @@ function createFireworks(count) {
                 particle.style.left = x + '%';
                 particle.style.top = y + '%';
                 particle.style.color = colors[Math.floor(Math.random() * colors.length)];
-                particle.innerHTML = '✨';
+                particle.innerHTML = emojis[Math.floor(Math.random() * emojis.length)];
                 particle.style.opacity = '1';
                 
                 container.appendChild(particle);
@@ -276,7 +250,7 @@ function createFireworks(count) {
 
 function createHearts(count) {
     const container = document.getElementById('heartsContainer');
-    const hearts = ['❤️', '💚', '💙', '💜', '🧡'];
+    const hearts = ['❤️', '💚', '💙', '💜', '🧡', '💕', '💖'];
     
     for (let i = 0; i < count; i++) {
         setTimeout(() => {
@@ -313,14 +287,60 @@ function closeGallery() {
     document.getElementById('galleryModal').classList.remove('active');
 }
 
+function setupGallery() {
+    const photoInputs = document.querySelectorAll('.photo-input');
+    
+    photoInputs.forEach((input, index) => {
+        const card = input.closest('.photo-card');
+        const placeholder = card.querySelector('.photo-placeholder');
+        
+        // Click on photo card to trigger file input
+        placeholder.addEventListener('click', () => {
+            input.click();
+        });
+        
+        // Handle file selection
+        input.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    placeholder.style.backgroundImage = `url(${event.target.result})`;
+                    placeholder.style.backgroundSize = 'cover';
+                    placeholder.style.backgroundPosition = 'center';
+                    placeholder.innerHTML = '';
+                    
+                    // Save to localStorage
+                    localStorage.setItem(`photo_${index}`, event.target.result);
+                    
+                    createConfetti();
+                    playCelebrationSound();
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+        
+        // Load from localStorage if exists
+        const savedPhoto = localStorage.getItem(`photo_${index}`);
+        if (savedPhoto) {
+            placeholder.style.backgroundImage = `url(${savedPhoto})`;
+            placeholder.style.backgroundSize = 'cover';
+            placeholder.style.backgroundPosition = 'center';
+            placeholder.innerHTML = '';
+        }
+    });
+}
+
 function toggleBirthdayMusic() {
     const audio = document.getElementById('birthdayAudio');
     const btn = document.getElementById('musicBtn');
     
     if (audio.paused) {
+        audio.src = INDIAN_BIRTHDAY_SONG;
         audio.play().catch(err => console.log('Audio play failed:', err));
         btn.innerHTML = '<i class="fas fa-pause"></i> Stop Song';
         btn.style.background = 'linear-gradient(135deg, #FF006E 0%, #FB5607 100%)';
+        createHearts(5);
     } else {
         audio.pause();
         audio.currentTime = 0;
@@ -394,25 +414,27 @@ function shareOnSocial() {
         text-align: center;
         backdrop-filter: blur(10px);
         animation: slideUp 0.3s ease;
+        max-width: 500px;
+        width: 90%;
     `;
     
     shareDiv.innerHTML = `
         <h3 style="color: #333; margin-bottom: 25px; font-size: 1.3rem;">Share the Celebration! 🎉</h3>
         <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; margin-bottom: 25px;">
-            <a href="https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(currentUrl)}" target="_blank" style="background: #1877F2; color: white; padding: 12px 24px; border-radius: 50px; text-decoration: none; font-weight: bold; display: inline-flex; align-items: center; gap: 8px; transition: all 0.3s ease;">
+            <a href="https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(currentUrl)}" target="_blank" style="background: #1877F2; color: white; padding: 12px 24px; border-radius: 50px; text-decoration: none; font-weight: 600; transition: all 0.3s; display: flex; align-items: center; gap: 8px;">
                 <i class="fab fa-facebook"></i> Facebook
             </a>
-            <a href="https://twitter.com/intent/tweet?text=${encodeURIComponent(message)}&url=${encodeURIComponent(currentUrl)}" target="_blank" style="background: #1DA1F2; color: white; padding: 12px 24px; border-radius: 50px; text-decoration: none; font-weight: bold; display: inline-flex; align-items: center; gap: 8px; transition: all 0.3s ease;">
+            <a href="https://twitter.com/intent/tweet?text=${encodeURIComponent(message)}&url=${encodeURIComponent(currentUrl)}" target="_blank" style="background: #1DA1F2; color: white; padding: 12px 24px; border-radius: 50px; text-decoration: none; font-weight: 600; transition: all 0.3s; display: flex; align-items: center; gap: 8px;">
                 <i class="fab fa-twitter"></i> Twitter
             </a>
-            <a href="https://wa.me/?text=${encodeURIComponent(message + ' ' + currentUrl)}" target="_blank" style="background: #25D366; color: white; padding: 12px 24px; border-radius: 50px; text-decoration: none; font-weight: bold; display: inline-flex; align-items: center; gap: 8px; transition: all 0.3s ease;">
+            <a href="https://wa.me/?text=${encodeURIComponent(message + ' ' + currentUrl)}" target="_blank" style="background: #25D366; color: white; padding: 12px 24px; border-radius: 50px; text-decoration: none; font-weight: 600; transition: all 0.3s; display: flex; align-items: center; gap: 8px;">
                 <i class="fab fa-whatsapp"></i> WhatsApp
             </a>
-            <button onclick="navigator.clipboard.writeText('${currentUrl}'); alert('Link copied!'); this.parentElement.parentElement.style.display='none';" style="background: #8338EC; color: white; padding: 12px 24px; border-radius: 50px; border: none; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;">
+            <button onclick="navigator.clipboard.writeText('${currentUrl}'); alert('Link copied! 🎉'); this.parentElement.parentElement.style.display='none';" style="background: #8338EC; color: white; padding: 12px 24px; border: none; border-radius: 50px; font-weight: 600; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; gap: 8px;">
                 <i class="fas fa-copy"></i> Copy Link
             </button>
         </div>
-        <button onclick="this.parentElement.parentElement.removeChild(this.parentElement);" style="background: #FF006E; color: white; padding: 12px 30px; border: none; border-radius: 50px; font-weight: bold; cursor: pointer; font-size: 1rem;">Close</button>
+        <button onclick="this.parentElement.parentElement.removeChild(this.parentElement);" style="background: #FF006E; color: white; padding: 12px 30px; border: none; border-radius: 50px; font-weight: 600; cursor: pointer; transition: all 0.3s;">Close</button>
     `;
     
     const bgDiv = document.createElement('div');
