@@ -65,7 +65,7 @@ function isSoundEnabled() {
 }
 
 // Indian Birthday Song Audio URL (Bollywood style)
-const INDIAN_BIRTHDAY_SONG = 'https://res.cloudinary.com/y7wyinbo/video/upload/v1784384635/Happy_Birthday_Vikram_Pannu_Shanky_Goswami_nmxlvl.m4a ye check kro';
+const INDIAN_BIRTHDAY_SONG = 'https://res.cloudinary.com/y7wyinbo/video/upload/v1784384635/Happy_Birthday_Vikram_Pannu_Shanky_Goswami_nmxlvl.m4a';
 
 function playCelebrationSound() {
     if (!isSoundEnabled()) return;
