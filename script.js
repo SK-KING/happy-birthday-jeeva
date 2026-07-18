@@ -65,7 +65,7 @@ function isSoundEnabled() {
 }
 
 // Indian Birthday Song Audio URL (Bollywood style)
-const INDIAN_BIRTHDAY_SONG = 'https://assets.mixkit.co/active_storage/sfx/2706/2706-preview.mp3';
+const INDIAN_BIRTHDAY_SONG = 'https://youtu.be/fZKc2xC_wtA?si=QS3O9zEjs4eP2GTN';
 
 function playCelebrationSound() {
     if (!isSoundEnabled()) return;
@@ -383,9 +383,9 @@ function openGift() {
     
     messageDiv.innerHTML = `
         <div style="font-size: 3rem; margin-bottom: 15px;">🎁</div>
-        <div>You're Amazing! 💫</div>
-        <div style="font-size: 1.1rem; margin-top: 10px;">Thanks for being the best friend! 💕</div>
-        <div style="font-size: 0.9rem; margin-top: 15px; opacity: 0.9;">Let's make more beautiful memories together! ✨</div>
+        <div>😍 You're Amazing! 💫</div>
+        <div style="font-size: 1.1rem; margin-top: 10px;">☺️ Thanks for being the best friend! 💕</div>
+        <div style="font-size: 0.9rem; margin-top: 15px; opacity: 0.9;">✨ Let's make more beautiful memories together! ✨</div>
     `;
     
     document.body.appendChild(messageDiv);
