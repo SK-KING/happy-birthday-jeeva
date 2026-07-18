@@ -1,12 +1,7 @@
-// Birthday Celebration App - Main Script
-// ========================================
-
-// Initialize everything when page loads
 document.addEventListener('DOMContentLoaded', () => {
     init();
 });
 
-// Main Initialization Function
 function init() {
     loadTheme();
     loadSoundPreference();
@@ -14,10 +9,6 @@ function init() {
     startCountdown();
     startAutoCelebration();
 }
-
-// ========================================
-// THEME TOGGLE
-// ========================================
 
 function loadTheme() {
     const savedTheme = localStorage.getItem('theme') || 'dark';
@@ -47,10 +38,6 @@ function updateThemeIcon(theme) {
     icon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
 }
 
-// ========================================
-// SOUND TOGGLE
-// ========================================
-
 function loadSoundPreference() {
     const soundOn = localStorage.getItem('soundOn') !== 'false';
     if (!soundOn) {
@@ -77,7 +64,6 @@ function isSoundEnabled() {
     return localStorage.getItem('soundOn') !== 'false';
 }
 
-// Play celebration sounds
 function playCelebrationSound() {
     if (!isSoundEnabled()) return;
     
@@ -108,10 +94,6 @@ function playTone(audioCtx, frequency, duration) {
     osc.stop(audioCtx.currentTime + duration);
 }
 
-// ========================================
-// EVENT LISTENERS
-// ========================================
-
 function setupEventListeners() {
     document.getElementById('themeToggle').addEventListener('click', toggleTheme);
     document.getElementById('soundToggle').addEventListener('click', toggleSound);
@@ -122,12 +104,10 @@ function setupEventListeners() {
     document.getElementById('shareBtn').addEventListener('click', shareOnSocial);
     document.getElementById('giftBox').addEventListener('click', openGift);
     
-    // Gallery modal close on outside click
     document.getElementById('galleryModal').addEventListener('click', (e) => {
         if (e.target.id === 'galleryModal') closeGallery();
     });
     
-    // Keyboard shortcuts
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') startCelebration();
         if (e.code === 'Space') {
@@ -137,12 +117,7 @@ function setupEventListeners() {
     });
 }
 
-// ========================================
-// COUNTDOWN TIMER
-// ========================================
-
 function startCountdown() {
-    // Set target to next birthday (24 hours from now for demo)
     const targetDate = new Date().getTime() + (24 * 60 * 60 * 1000);
     
     const updateTimer = () => {
@@ -150,7 +125,6 @@ function startCountdown() {
         const diff = targetDate - now;
         
         if (diff <= 0) {
-            // Birthday reached!
             document.getElementById('days').textContent = '00';
             document.getElementById('hours').textContent = '00';
             document.getElementById('minutes').textContent = '00';
@@ -173,10 +147,6 @@ function startCountdown() {
     setInterval(updateTimer, 1000);
 }
 
-// ========================================
-// AUTO CELEBRATION ON LOAD
-// ========================================
-
 function startAutoCelebration() {
     setTimeout(() => {
         createConfetti();
@@ -186,34 +156,24 @@ function startAutoCelebration() {
     }, 500);
 }
 
-// ========================================
-// CELEBRATION EFFECTS
-// ========================================
-
 function startCelebration() {
     playCelebrationSound();
     createConfetti();
     createFireworks(12);
     createHearts(20);
     
-    // Shake cake
     const cake = document.querySelector('.cake');
     cake.style.animation = 'none';
     setTimeout(() => {
         cake.style.animation = 'bounce 0.6s ease';
     }, 10);
     
-    // Shake title
     const title = document.querySelector('.main-title');
     title.style.animation = 'none';
     setTimeout(() => {
         title.style.animation = 'bounce 2s infinite';
     }, 10);
 }
-
-// ========================================
-// CONFETTI ANIMATION
-// ========================================
 
 function createConfetti() {
     const canvas = document.getElementById('confettiCanvas');
@@ -242,7 +202,7 @@ function createConfetti() {
             this.x += this.vx;
             this.y += this.vy;
             this.rot += this.rotSpeed;
-            this.vy += 0.1; // Gravity
+            this.vy += 0.1;
         }
         
         draw() {
@@ -255,12 +215,10 @@ function createConfetti() {
         }
     }
     
-    // Create particles
     for (let i = 0; i < 150; i++) {
         confettis.push(new Confetti());
     }
     
-    // Animate
     const animate = () => {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         
@@ -276,10 +234,6 @@ function createConfetti() {
     
     animate();
 }
-
-// ========================================
-// FIREWORKS ANIMATION
-// ========================================
 
 function createFireworks(count) {
     const container = document.getElementById('fireworksContainer');
@@ -320,10 +274,6 @@ function createFireworks(count) {
     }
 }
 
-// ========================================
-// FLOATING HEARTS
-// ========================================
-
 function createHearts(count) {
     const container = document.getElementById('heartsContainer');
     const hearts = ['❤️', '💚', '💙', '💜', '🧡'];
@@ -354,10 +304,6 @@ function createHearts(count) {
     }
 }
 
-// ========================================
-// GALLERY
-// ========================================
-
 function openGallery() {
     document.getElementById('galleryModal').classList.add('active');
     playCelebrationSound();
@@ -366,10 +312,6 @@ function openGallery() {
 function closeGallery() {
     document.getElementById('galleryModal').classList.remove('active');
 }
-
-// ========================================
-// BIRTHDAY SONG
-// ========================================
 
 function toggleBirthdayMusic() {
     const audio = document.getElementById('birthdayAudio');
@@ -387,10 +329,6 @@ function toggleBirthdayMusic() {
     }
 }
 
-// ========================================
-// GIFT BOX SURPRISE
-// ========================================
-
 function openGift() {
     createConfetti();
     createFireworks(8);
@@ -403,7 +341,6 @@ function openGift() {
         giftBox.style.animation = 'pulse 2.5s infinite';
     }, 10);
     
-    // Show surprise message
     const messageDiv = document.createElement('div');
     messageDiv.style.cssText = `
         position: fixed;
@@ -438,10 +375,6 @@ function openGift() {
         setTimeout(() => messageDiv.remove(), 500);
     }, 3000);
 }
-
-// ========================================
-// SHARE ON SOCIAL MEDIA
-// ========================================
 
 function shareOnSocial() {
     const currentUrl = window.location.href;
@@ -502,10 +435,6 @@ function shareOnSocial() {
     document.body.appendChild(shareDiv);
 }
 
-// ========================================
-// WINDOW RESIZE HANDLER
-// ========================================
-
 window.addEventListener('resize', () => {
     const canvas = document.getElementById('confettiCanvas');
     if (canvas) {
@@ -514,7 +443,6 @@ window.addEventListener('resize', () => {
     }
 });
 
-// Add CSS animation styles dynamically
 const style = document.createElement('style');
 style.textContent = `
     @keyframes slideUp {
