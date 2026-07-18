@@ -65,7 +65,7 @@ function isSoundEnabled() {
 }
 
 // Indian Birthday Song Audio URL (Bollywood style)
-const INDIAN_BIRTHDAY_SONG = 'https://youtu.be/fZKc2xC_wtA?si=QS3O9zEjs4eP2GTN';
+const INDIAN_BIRTHDAY_SONG = 'https://open.spotify.com/track/2pW5kNCx133MWWirxegvng?si=U22XLtJCQwCXybLA5xfr7w&utm_source=copy-link';
 
 function playCelebrationSound() {
     if (!isSoundEnabled()) return;
