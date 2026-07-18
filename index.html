@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎉 Happy Birthday Jeeva Sree! 🎉</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Canvas for Confetti -->
+    <canvas id="confettiCanvas"></canvas>
+    
+    <!-- Fireworks Container -->
+    <div id="fireworksContainer"></div>
+    
+    <!-- Hearts Container -->
+    <div id="heartsContainer"></div>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="controls">
+                <button id="themeToggle" class="control-btn" title="Toggle Theme">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <button id="soundToggle" class="control-btn" title="Toggle Sound">
+                    <i class="fas fa-volume-up"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="content">
+            <!-- Title -->
+            <h1 class="main-title">
+                <span class="emoji">🎉</span>
+                Happy Birthday
+                <br>
+                <span class="name">Jeeva Sree</span>
+                <span class="emoji">🎉</span>
+            </h1>
+
+            <!-- Countdown Timer -->
+            <div class="countdown-container">
+                <div class="countdown-box">
+                    <div class="countdown-item">
+                        <span class="countdown-num" id="days">00</span>
+                        <span class="countdown-label">Days</span>
+                    </div>
+                    <div class="countdown-item">
+                        <span class="countdown-num" id="hours">00</span>
+                        <span class="countdown-label">Hours</span>
+                    </div>
+                    <div class="countdown-item">
+                        <span class="countdown-num" id="minutes">00</span>
+                        <span class="countdown-label">Minutes</span>
+                    </div>
+                    <div class="countdown-item">
+                        <span class="countdown-num" id="seconds">00</span>
+                        <span class="countdown-label">Seconds</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Animated Cake -->
+            <div class="cake-container">
+                <div class="cake">
+                    <div class="candle">
+                        <div class="flame"></div>
+                    </div>
+                    <div class="cake-layer cake-1"></div>
+                    <div class="cake-layer cake-2"></div>
+                    <div class="cake-layer cake-3"></div>
+                </div>
+            </div>
+
+            <!-- Birthday Message -->
+            <div class="message-box">
+                <p class="message">✨ Wishing you a day filled with love, laughter, and endless joy! ✨</p>
+                <p class="message">You make every moment special just by being you!</p>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="button-group">
+                <button class="btn btn-celebrate" id="celebrateBtn">
+                    <i class="fas fa-party-horn"></i> CELEBRATE!
+                </button>
+                <button class="btn btn-music" id="musicBtn">
+                    <i class="fas fa-music"></i> Birthday Song
+                </button>
+                <button class="btn btn-gallery" id="galleryBtn">
+                    <i class="fas fa-images"></i> Photo Gallery
+                </button>
+            </div>
+
+            <!-- Gift Box -->
+            <div class="gift-box" id="giftBox">
+                <div class="gift-box-top"></div>
+                <div class="gift-box-bottom"></div>
+                <div class="gift-ribbon"></div>
+                <div class="gift-text">🎁</div>
+            </div>
+
+            <!-- Photo Gallery Modal -->
+            <div class="modal" id="galleryModal">
+                <div class="modal-content">
+                    <span class="close-btn" id="closeGallery">&times;</span>
+                    <h2>Our Beautiful Memories 📸</h2>
+                    <div class="gallery">
+                        <div class="photo-card">
+                            <div class="photo-placeholder">
+                                <i class="fas fa-heart"></i>
+                                <p>Memory 1</p>
+                            </div>
+                        </div>
+                        <div class="photo-card">
+                            <div class="photo-placeholder">
+                                <i class="fas fa-star"></i>
+                                <p>Memory 2</p>
+                            </div>
+                        </div>
+                        <div class="photo-card">
+                            <div class="photo-placeholder">
+                                <i class="fas fa-smile"></i>
+                                <p>Memory 3</p>
+                            </div>
+                        </div>
+                        <div class="photo-card">
+                            <div class="photo-placeholder">
+                                <i class="fas fa-camera"></i>
+                                <p>Memory 4</p>
+                            </div>
+                        </div>
+                        <div class="photo-card">
+                            <div class="photo-placeholder">
+                                <i class="fas fa-sparkles"></i>
+                                <p>Memory 5</p>
+                            </div>
+                        </div>
+                        <div class="photo-card">
+                            <div class="photo-placeholder">
+                                <i class="fas fa-sun"></i>
+                                <p>Memory 6</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Share Button -->
+            <button class="share-btn" id="shareBtn" title="Share celebration">
+                <i class="fas fa-share-alt"></i>
+            </button>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Made with <i class="fas fa-heart"></i> for your special day!</p>
+        </footer>
+    </div>
+
+    <!-- Audio Element -->
+    <audio id="birthdayAudio" preload="auto">
+        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+    </audio>
+
+    <script src="script.js"></script>
+</body>
+</html>
