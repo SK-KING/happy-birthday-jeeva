@@ -1,492 +1,531 @@
-// ============================================
-// BIRTHDAY GIFT WEB APP - Main JavaScript
-// ============================================
+// Birthday Celebration App - Main Script
+// ========================================
 
-// Initialize on page load
+// Initialize everything when page loads
 document.addEventListener('DOMContentLoaded', () => {
-    initializeApp();
-    startCountdown();
-    startAutoCelebration();
+    init();
 });
 
-// ============================================
-// 1. INITIALIZATION
-// ============================================
-
-function initializeApp() {
-    // Theme initialization
-    const savedTheme = localStorage.getItem('theme') || 'dark-theme';
-    document.body.classList.add(savedTheme);
-    updateThemeIcon(savedTheme);
-
-    // Sound initialization
-    const soundEnabled = localStorage.getItem('soundEnabled') !== 'false';
-    if (!soundEnabled) {
-        document.getElementById('soundBtn').classList.add('muted');
-    }
-
-    // Event listeners
+// Main Initialization Function
+function init() {
+    loadTheme();
+    loadSoundPreference();
     setupEventListeners();
+    startCountdown();
+    startAutoCelebration();
 }
 
+// ========================================
+// THEME TOGGLE
+// ========================================
+
+function loadTheme() {
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    if (savedTheme === 'light') {
+        document.body.classList.add('light-theme');
+        updateThemeIcon('light');
+    } else {
+        updateThemeIcon('dark');
+    }
+}
+
+function toggleTheme() {
+    const isLight = document.body.classList.contains('light-theme');
+    if (isLight) {
+        document.body.classList.remove('light-theme');
+        localStorage.setItem('theme', 'dark');
+        updateThemeIcon('dark');
+    } else {
+        document.body.classList.add('light-theme');
+        localStorage.setItem('theme', 'light');
+        updateThemeIcon('light');
+    }
+}
+
+function updateThemeIcon(theme) {
+    const icon = document.querySelector('#themeToggle i');
+    icon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+}
+
+// ========================================
+// SOUND TOGGLE
+// ========================================
+
+function loadSoundPreference() {
+    const soundOn = localStorage.getItem('soundOn') !== 'false';
+    if (!soundOn) {
+        document.getElementById('soundToggle').classList.add('muted');
+    }
+}
+
+function toggleSound() {
+    const btn = document.getElementById('soundToggle');
+    const isMuted = btn.classList.contains('muted');
+    
+    if (isMuted) {
+        btn.classList.remove('muted');
+        btn.querySelector('i').className = 'fas fa-volume-up';
+        localStorage.setItem('soundOn', 'true');
+    } else {
+        btn.classList.add('muted');
+        btn.querySelector('i').className = 'fas fa-volume-mute';
+        localStorage.setItem('soundOn', 'false');
+    }
+}
+
+function isSoundEnabled() {
+    return localStorage.getItem('soundOn') !== 'false';
+}
+
+// Play celebration sounds
+function playCelebrationSound() {
+    if (!isSoundEnabled()) return;
+    
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const notes = [523.25, 659.25, 783.99];
+    
+    notes.forEach((freq, i) => {
+        setTimeout(() => {
+            playTone(audioCtx, freq, 0.15);
+        }, i * 100);
+    });
+}
+
+function playTone(audioCtx, frequency, duration) {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    
+    osc.frequency.value = frequency;
+    osc.type = 'sine';
+    
+    gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+    
+    osc.start(audioCtx.currentTime);
+    osc.stop(audioCtx.currentTime + duration);
+}
+
+// ========================================
+// EVENT LISTENERS
+// ========================================
+
 function setupEventListeners() {
-    // Theme toggle
-    document.getElementById('themeBtn').addEventListener('click', toggleTheme);
-
-    // Sound toggle
-    document.getElementById('soundBtn').addEventListener('click', toggleSound);
-
-    // Celebrate button
+    document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+    document.getElementById('soundToggle').addEventListener('click', toggleSound);
     document.getElementById('celebrateBtn').addEventListener('click', startCelebration);
-
-    // Gallery button
+    document.getElementById('musicBtn').addEventListener('click', toggleBirthdayMusic);
     document.getElementById('galleryBtn').addEventListener('click', openGallery);
-
-    // Music button
-    document.getElementById('musicBtn').addEventListener('click', playBirthdaySong);
-
-    // Gallery close
     document.getElementById('closeGallery').addEventListener('click', closeGallery);
-
-    // Share button
-    document.getElementById('shareBtn').addEventListener('click', shareToSocial);
-
-    // Gift box click
-    document.querySelector('.gift-box').addEventListener('click', surpriseGiftBox);
-
-    // Close gallery on outside click
+    document.getElementById('shareBtn').addEventListener('click', shareOnSocial);
+    document.getElementById('giftBox').addEventListener('click', openGift);
+    
+    // Gallery modal close on outside click
     document.getElementById('galleryModal').addEventListener('click', (e) => {
-        if (e.target.id === 'galleryModal') {
-            closeGallery();
+        if (e.target.id === 'galleryModal') closeGallery();
+    });
+    
+    // Keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') startCelebration();
+        if (e.code === 'Space') {
+            e.preventDefault();
+            openGift();
         }
     });
 }
 
-// ============================================
-// 2. THEME TOGGLE
-// ============================================
-
-function toggleTheme() {
-    const body = document.body;
-    const currentTheme = body.classList.contains('dark-theme') ? 'dark-theme' : 'light-theme';
-    const newTheme = currentTheme === 'dark-theme' ? 'light-theme' : 'dark-theme';
-
-    body.classList.remove(currentTheme);
-    body.classList.add(newTheme);
-    localStorage.setItem('theme', newTheme);
-    updateThemeIcon(newTheme);
-
-    playSound('switch');
-}
-
-function updateThemeIcon(theme) {
-    const icon = document.querySelector('#themeBtn i');
-    icon.className = theme === 'dark-theme' ? 'fas fa-sun' : 'fas fa-moon';
-}
-
-// ============================================
-// 3. SOUND TOGGLE
-// ============================================
-
-function toggleSound() {
-    const soundBtn = document.getElementById('soundBtn');
-    const soundEnabled = !soundBtn.classList.contains('muted');
-
-    soundBtn.classList.toggle('muted');
-    localStorage.setItem('soundEnabled', !soundEnabled);
-
-    const icon = soundBtn.querySelector('i');
-    icon.className = soundEnabled ? 'fas fa-volume-mute' : 'fas fa-volume-up';
-}
-
-function isSoundEnabled() {
-    return localStorage.getItem('soundEnabled') !== 'false' && 
-           !document.getElementById('soundBtn').classList.contains('muted');
-}
-
-function playSound(type) {
-    if (!isSoundEnabled()) return;
-
-    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-
-    switch(type) {
-        case 'celebration':
-            playTone(audioContext, 523.25, 0.1);
-            playTone(audioContext, 659.25, 0.1, 0.1);
-            playTone(audioContext, 783.99, 0.1, 0.2);
-            break;
-        case 'switch':
-            playTone(audioContext, 880, 0.05);
-            break;
-        case 'click':
-            playTone(audioContext, 440, 0.05);
-            break;
-    }
-}
-
-function playTone(audioContext, frequency, duration, delay = 0) {
-    const oscillator = audioContext.createOscillator();
-    const gainNode = audioContext.createGain();
-
-    oscillator.connect(gainNode);
-    gainNode.connect(audioContext.destination);
-
-    oscillator.frequency.value = frequency;
-    oscillator.type = 'sine';
-
-    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime + delay);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + delay + duration);
-
-    oscillator.start(audioContext.currentTime + delay);
-    oscillator.stop(audioContext.currentTime + delay + duration);
-}
-
-// ============================================
-// 4. COUNTDOWN TIMER
-// ============================================
+// ========================================
+// COUNTDOWN TIMER
+// ========================================
 
 function startCountdown() {
-    function updateCountdown() {
-        const targetDate = new Date().getTime() + (24 * 60 * 60 * 1000);
-
-        setInterval(() => {
-            const now = new Date().getTime();
-            const distance = targetDate - now;
-
-            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-            document.getElementById('days').textContent = String(days).padStart(2, '0');
-            document.getElementById('hours').textContent = String(hours).padStart(2, '0');
-            document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
-            document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
-        }, 1000);
-    }
-
-    updateCountdown();
+    // Set target to next birthday (24 hours from now for demo)
+    const targetDate = new Date().getTime() + (24 * 60 * 60 * 1000);
+    
+    const updateTimer = () => {
+        const now = new Date().getTime();
+        const diff = targetDate - now;
+        
+        if (diff <= 0) {
+            // Birthday reached!
+            document.getElementById('days').textContent = '00';
+            document.getElementById('hours').textContent = '00';
+            document.getElementById('minutes').textContent = '00';
+            document.getElementById('seconds').textContent = '00';
+            return;
+        }
+        
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+        
+        document.getElementById('days').textContent = String(days).padStart(2, '0');
+        document.getElementById('hours').textContent = String(hours).padStart(2, '0');
+        document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
+        document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
+    };
+    
+    updateTimer();
+    setInterval(updateTimer, 1000);
 }
 
-// ============================================
-// 5. AUTO CELEBRATION ON LOAD
-// ============================================
+// ========================================
+// AUTO CELEBRATION ON LOAD
+// ========================================
 
 function startAutoCelebration() {
     setTimeout(() => {
         createConfetti();
         createFireworks(5);
-        createHearts(10);
-        playSound('celebration');
+        createHearts(8);
+        playCelebrationSound();
     }, 500);
 }
 
-// ============================================
-// 6. CELEBRATION EFFECTS
-// ============================================
+// ========================================
+// CELEBRATION EFFECTS
+// ========================================
 
 function startCelebration() {
-    playSound('celebration');
+    playCelebrationSound();
     createConfetti();
-    createFireworks(10);
+    createFireworks(12);
     createHearts(20);
     
+    // Shake cake
     const cake = document.querySelector('.cake');
     cake.style.animation = 'none';
     setTimeout(() => {
         cake.style.animation = 'bounce 0.6s ease';
     }, 10);
-
-    document.querySelector('.main-title').style.animation = 'none';
+    
+    // Shake title
+    const title = document.querySelector('.main-title');
+    title.style.animation = 'none';
     setTimeout(() => {
-        document.querySelector('.main-title').style.animation = 'bounce 2s infinite';
+        title.style.animation = 'bounce 2s infinite';
     }, 10);
 }
 
-// ============================================
-// 7. CONFETTI ANIMATION
-// ============================================
+// ========================================
+// CONFETTI ANIMATION
+// ========================================
 
 function createConfetti() {
-    const canvas = document.getElementById('confetti');
+    const canvas = document.getElementById('confettiCanvas');
     const ctx = canvas.getContext('2d');
-
+    
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
-
-    const confetti = [];
-    const colors = ['#FF6B9D', '#FFA502', '#00B4DB', '#FFD700', '#A8E6CF', '#FF8ABE', '#FFB84D'];
-
-    function Confetti() {
-        this.x = Math.random() * canvas.width;
-        this.y = -10;
-        this.width = Math.random() * 10 + 5;
-        this.height = Math.random() * 10 + 5;
-        this.color = colors[Math.floor(Math.random() * colors.length)];
-        this.speedX = Math.random() * 8 - 4;
-        this.speedY = Math.random() * 5 + 5;
-        this.rotation = Math.random() * 360;
-        this.rotationSpeed = Math.random() * 10 - 5;
+    
+    const confettis = [];
+    const colors = ['#FF006E', '#FB5607', '#FFBE0B', '#8338EC', '#3A86FF', '#FF1744', '#FF6D00', '#FFC107'];
+    
+    class Confetti {
+        constructor() {
+            this.x = Math.random() * canvas.width;
+            this.y = -10;
+            this.w = Math.random() * 10 + 4;
+            this.h = Math.random() * 10 + 4;
+            this.color = colors[Math.floor(Math.random() * colors.length)];
+            this.vx = Math.random() * 10 - 5;
+            this.vy = Math.random() * 5 + 5;
+            this.rot = Math.random() * 360;
+            this.rotSpeed = Math.random() * 10 - 5;
+        }
+        
+        update() {
+            this.x += this.vx;
+            this.y += this.vy;
+            this.rot += this.rotSpeed;
+            this.vy += 0.1; // Gravity
+        }
+        
+        draw() {
+            ctx.save();
+            ctx.translate(this.x, this.y);
+            ctx.rotate((this.rot * Math.PI) / 180);
+            ctx.fillStyle = this.color;
+            ctx.fillRect(-this.w / 2, -this.h / 2, this.w, this.h);
+            ctx.restore();
+        }
     }
-
-    Confetti.prototype.draw = function() {
-        ctx.save();
-        ctx.translate(this.x, this.y);
-        ctx.rotate((this.rotation * Math.PI) / 180);
-        ctx.fillStyle = this.color;
-        ctx.fillRect(-this.width / 2, -this.height / 2, this.width, this.height);
-        ctx.restore();
-    };
-
-    Confetti.prototype.update = function() {
-        this.x += this.speedX;
-        this.y += this.speedY;
-        this.rotation += this.rotationSpeed;
-        this.speedY += 0.1;
-    };
-
-    for (let i = 0; i < 100; i++) {
-        confetti.push(new Confetti());
+    
+    // Create particles
+    for (let i = 0; i < 150; i++) {
+        confettis.push(new Confetti());
     }
-
-    function animate() {
+    
+    // Animate
+    const animate = () => {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        confetti.forEach((c) => {
+        
+        confettis.forEach(c => {
             c.update();
             c.draw();
         });
-
-        if (confetti.length > 0) {
+        
+        if (confettis.length > 0) {
             requestAnimationFrame(animate);
         }
-    }
-
+    };
+    
     animate();
 }
 
-// ============================================
-// 8. FIREWORKS ANIMATION
-// ============================================
+// ========================================
+// FIREWORKS ANIMATION
+// ========================================
 
 function createFireworks(count) {
-    const container = document.getElementById('fireworks');
-    const colors = ['#FF6B9D', '#FFA502', '#00B4DB', '#FFD700', '#A8E6CF'];
-
+    const container = document.getElementById('fireworksContainer');
+    const colors = ['#FF006E', '#FB5607', '#FFBE0B', '#8338EC', '#3A86FF'];
+    
     for (let i = 0; i < count; i++) {
         setTimeout(() => {
             const x = Math.random() * 80 + 10;
-            const y = Math.random() * 60 + 10;
-
-            for (let j = 0; j < 8; j++) {
+            const y = Math.random() * 50 + 15;
+            
+            for (let j = 0; j < 12; j++) {
                 const particle = document.createElement('div');
-                particle.className = 'particle';
+                particle.className = 'firework';
                 particle.style.left = x + '%';
                 particle.style.top = y + '%';
                 particle.style.color = colors[Math.floor(Math.random() * colors.length)];
                 particle.innerHTML = '✨';
-                particle.style.fontSize = Math.random() * 20 + 10 + 'px';
-                particle.style.position = 'fixed';
-
+                particle.style.opacity = '1';
+                
                 container.appendChild(particle);
-
-                const angle = (j / 8) * Math.PI * 2;
-                const velocity = Math.random() * 200 + 150;
-                const tx = Math.cos(angle) * velocity;
-                const ty = Math.sin(angle) * velocity;
-
+                
+                const angle = (j / 12) * Math.PI * 2;
+                const distance = Math.random() * 250 + 150;
+                const tx = Math.cos(angle) * distance;
+                const ty = Math.sin(angle) * distance;
+                
                 particle.animate([
                     { transform: 'translate(0, 0) scale(1)', opacity: 1 },
                     { transform: `translate(${tx}px, ${ty}px) scale(0)`, opacity: 0 }
                 ], {
-                    duration: 1000,
-                    easing: 'ease-out'
+                    duration: 1200,
+                    easing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)'
                 });
-
-                setTimeout(() => particle.remove(), 1000);
+                
+                setTimeout(() => particle.remove(), 1200);
             }
-        }, i * 200);
+        }, i * 150);
     }
 }
 
-// ============================================
-// 9. FLOATING HEARTS
-// ============================================
+// ========================================
+// FLOATING HEARTS
+// ========================================
 
 function createHearts(count) {
     const container = document.getElementById('heartsContainer');
     const hearts = ['❤️', '💚', '💙', '💜', '🧡'];
-
+    
     for (let i = 0; i < count; i++) {
         setTimeout(() => {
             const heart = document.createElement('div');
             heart.className = 'heart';
             heart.innerHTML = hearts[Math.floor(Math.random() * hearts.length)];
             heart.style.left = Math.random() * 100 + '%';
-            heart.style.bottom = '0';
+            heart.style.bottom = '-20px';
             
-            const randomX = Math.random() * 200 - 100;
-            const duration = Math.random() * 2000 + 2000;
-
             container.appendChild(heart);
-
-            const keyframes = [
+            
+            const duration = Math.random() * 2000 + 2500;
+            const randomX = Math.random() * 300 - 150;
+            
+            heart.animate([
                 { transform: 'translateY(0) translateX(0) rotate(0deg)', opacity: 1 },
                 { transform: `translateY(-100vh) translateX(${randomX}px) rotate(360deg)`, opacity: 0 }
-            ];
-
-            heart.animate(keyframes, {
+            ], {
                 duration: duration,
-                easing: 'ease-in',
-                fill: 'forwards'
+                easing: 'ease-in'
             });
-
+            
             setTimeout(() => heart.remove(), duration);
-        }, i * 100);
+        }, i * 80);
     }
 }
 
-// ============================================
-// 10. GALLERY MANAGEMENT
-// ============================================
+// ========================================
+// GALLERY
+// ========================================
 
 function openGallery() {
     document.getElementById('galleryModal').classList.add('active');
-    playSound('click');
+    playCelebrationSound();
 }
 
 function closeGallery() {
     document.getElementById('galleryModal').classList.remove('active');
-    playSound('click');
 }
 
-// ============================================
-// 11. BIRTHDAY SONG
-// ============================================
+// ========================================
+// BIRTHDAY SONG
+// ========================================
 
-function playBirthdaySong() {
+function toggleBirthdayMusic() {
     const audio = document.getElementById('birthdayAudio');
+    const btn = document.getElementById('musicBtn');
     
     if (audio.paused) {
-        audio.play();
-        document.getElementById('musicBtn').innerHTML = '<i class="fas fa-pause"></i> Stop Song';
+        audio.play().catch(err => console.log('Audio play failed:', err));
+        btn.innerHTML = '<i class="fas fa-pause"></i> Stop Song';
+        btn.style.background = 'linear-gradient(135deg, #FF006E 0%, #FB5607 100%)';
     } else {
         audio.pause();
         audio.currentTime = 0;
-        document.getElementById('musicBtn').innerHTML = '<i class="fas fa-music"></i> Birthday Song';
+        btn.innerHTML = '<i class="fas fa-music"></i> Birthday Song';
+        btn.style.background = '';
     }
-
-    playSound('click');
 }
 
-// ============================================
-// 12. SHARE TO SOCIAL MEDIA
-// ============================================
+// ========================================
+// GIFT BOX SURPRISE
+// ========================================
 
-function shareToSocial() {
-    const message = "🎉 Join my birthday celebration! Link: " + window.location.href;
-    const encodedMessage = encodeURIComponent(message);
-
-    const shareOptions = `
-        <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
-                    background: white; padding: 30px; border-radius: 15px; 
-                    box-shadow: 0 10px 40px rgba(0,0,0,0.3); z-index: 5000; text-align: center;">
-            <h2 style="color: #333; margin-bottom: 20px;">Share on Social Media</h2>
-            <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 20px;">
-                <a href="https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}" 
-                   target="_blank" style="background: #1877F2; color: white; padding: 10px 20px; border-radius: 10px; text-decoration: none; font-weight: bold;">
-                   📘 Facebook
-                </a>
-                <a href="https://twitter.com/intent/tweet?text=${encodedMessage}" 
-                   target="_blank" style="background: #1DA1F2; color: white; padding: 10px 20px; border-radius: 10px; text-decoration: none; font-weight: bold;">
-                   🐦 Twitter
-                </a>
-                <a href="https://wa.me/?text=${encodedMessage}" 
-                   target="_blank" style="background: #25D366; color: white; padding: 10px 20px; border-radius: 10px; text-decoration: none; font-weight: bold;">
-                   💬 WhatsApp
-                </a>
-            </div>
-            <button onclick="this.parentElement.style.display='none'" 
-                    style="background: #FF6B9D; color: white; border: none; padding: 10px 20px; border-radius: 10px; cursor: pointer; font-weight: bold;">
-                Close
-            </button>
-        </div>
-    `;
-
-    const shareDiv = document.createElement('div');
-    shareDiv.innerHTML = shareOptions;
-    document.body.appendChild(shareDiv);
-
-    playSound('click');
-}
-
-// ============================================
-// 13. SURPRISE GIFT BOX
-// ============================================
-
-function surpriseGiftBox() {
+function openGift() {
     createConfetti();
     createFireworks(8);
     createHearts(15);
-    playSound('celebration');
-
-    const giftBox = document.querySelector('.gift-box');
+    playCelebrationSound();
+    
+    const giftBox = document.getElementById('giftBox');
     giftBox.style.animation = 'none';
     setTimeout(() => {
-        giftBox.style.animation = 'pulse 2s infinite';
+        giftBox.style.animation = 'pulse 2.5s infinite';
     }, 10);
-
-    const message = document.createElement('div');
-    message.style.cssText = `
+    
+    // Show surprise message
+    const messageDiv = document.createElement('div');
+    messageDiv.style.cssText = `
         position: fixed;
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        background: linear-gradient(135deg, #FF6B9D 0%, #FFA502 100%);
+        background: linear-gradient(135deg, #FF006E 0%, #FB5607 100%);
         color: white;
-        padding: 30px 40px;
-        border-radius: 20px;
+        padding: 40px 50px;
+        border-radius: 25px;
         font-size: 1.5rem;
         font-weight: bold;
         z-index: 10000;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        box-shadow: 0 20px 60px rgba(0,0,0,0.4);
         text-align: center;
-        animation: slideUp 0.5s ease;
+        backdrop-filter: blur(10px);
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        animation: slideUp 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
     `;
-    message.innerHTML = `
-        🎁 You're the best! <br>
-        Thanks for being my bestfriend! 💕<br>
-        <small style="font-size: 1rem; margin-top: 10px;">Let's create more memories together!</small>
+    
+    messageDiv.innerHTML = `
+        <div style="font-size: 3rem; margin-bottom: 15px;">🎁</div>
+        <div>You're Amazing! 💫</div>
+        <div style="font-size: 1.1rem; margin-top: 10px;">Thanks for being the best friend! 💕</div>
+        <div style="font-size: 0.9rem; margin-top: 15px; opacity: 0.9;">Let's make more beautiful memories together! ✨</div>
     `;
-
-    document.body.appendChild(message);
-
+    
+    document.body.appendChild(messageDiv);
+    
     setTimeout(() => {
-        message.style.animation = 'slideUp 0.5s ease reverse';
-        setTimeout(() => message.remove(), 500);
+        messageDiv.style.animation = 'slideUp 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) reverse';
+        setTimeout(() => messageDiv.remove(), 500);
     }, 3000);
 }
 
-// ============================================
-// 14. WINDOW RESIZE HANDLER
-// ============================================
+// ========================================
+// SHARE ON SOCIAL MEDIA
+// ========================================
+
+function shareOnSocial() {
+    const currentUrl = window.location.href;
+    const message = "🎉 Join Jeeva Sree's Birthday Celebration! 🎂 Wishing you an amazing day filled with love and laughter! 💕 #BirthdayVibes #Celebration";
+    
+    const shareDiv = document.createElement('div');
+    shareDiv.style.cssText = `
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        padding: 40px;
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        z-index: 5000;
+        text-align: center;
+        backdrop-filter: blur(10px);
+        animation: slideUp 0.3s ease;
+    `;
+    
+    shareDiv.innerHTML = `
+        <h3 style="color: #333; margin-bottom: 25px; font-size: 1.3rem;">Share the Celebration! 🎉</h3>
+        <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; margin-bottom: 25px;">
+            <a href="https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(currentUrl)}" target="_blank" style="background: #1877F2; color: white; padding: 12px 24px; border-radius: 50px; text-decoration: none; font-weight: bold; display: inline-flex; align-items: center; gap: 8px; transition: all 0.3s ease;">
+                <i class="fab fa-facebook"></i> Facebook
+            </a>
+            <a href="https://twitter.com/intent/tweet?text=${encodeURIComponent(message)}&url=${encodeURIComponent(currentUrl)}" target="_blank" style="background: #1DA1F2; color: white; padding: 12px 24px; border-radius: 50px; text-decoration: none; font-weight: bold; display: inline-flex; align-items: center; gap: 8px; transition: all 0.3s ease;">
+                <i class="fab fa-twitter"></i> Twitter
+            </a>
+            <a href="https://wa.me/?text=${encodeURIComponent(message + ' ' + currentUrl)}" target="_blank" style="background: #25D366; color: white; padding: 12px 24px; border-radius: 50px; text-decoration: none; font-weight: bold; display: inline-flex; align-items: center; gap: 8px; transition: all 0.3s ease;">
+                <i class="fab fa-whatsapp"></i> WhatsApp
+            </a>
+            <button onclick="navigator.clipboard.writeText('${currentUrl}'); alert('Link copied!'); this.parentElement.parentElement.style.display='none';" style="background: #8338EC; color: white; padding: 12px 24px; border-radius: 50px; border: none; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;">
+                <i class="fas fa-copy"></i> Copy Link
+            </button>
+        </div>
+        <button onclick="this.parentElement.parentElement.removeChild(this.parentElement);" style="background: #FF006E; color: white; padding: 12px 30px; border: none; border-radius: 50px; font-weight: bold; cursor: pointer; font-size: 1rem;">Close</button>
+    `;
+    
+    const bgDiv = document.createElement('div');
+    bgDiv.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+        z-index: 4999;
+        backdrop-filter: blur(5px);
+    `;
+    bgDiv.onclick = () => {
+        bgDiv.remove();
+        shareDiv.remove();
+    };
+    
+    document.body.appendChild(bgDiv);
+    document.body.appendChild(shareDiv);
+}
+
+// ========================================
+// WINDOW RESIZE HANDLER
+// ========================================
 
 window.addEventListener('resize', () => {
-    const canvas = document.getElementById('confetti');
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-});
-
-// ============================================
-// 15. EASTER EGG - KEYBOARD SHORTCUTS
-// ============================================
-
-document.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') {
-        startCelebration();
-    }
-    if (e.key === ' ') {
-        e.preventDefault();
-        surpriseGiftBox();
+    const canvas = document.getElementById('confettiCanvas');
+    if (canvas) {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
     }
 });
+
+// Add CSS animation styles dynamically
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideUp {
+        from {
+            transform: translate(-50%, -50%) translateY(100px);
+            opacity: 0;
+        }
+        to {
+            transform: translate(-50%, -50%) translateY(0);
+            opacity: 1;
+        }
+    }
+`;
+document.head.appendChild(style);
